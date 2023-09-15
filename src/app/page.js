@@ -1,95 +1,46 @@
-import Image from 'next/image'
+'use client'
+import React, { useState } from 'react'
+import * as XLSX from 'xlsx'
+
 import styles from './page.module.css'
 
 export default function Home() {
+  const convertToJson = async (headers, data) => {
+    const rows = []
+    data.forEach(async row => {
+      let rowData = {}
+      row.forEach( async (element, index) => {
+        rowData[headers[index]] = element
+      })
+      console.log('rowData: ', rowData)
+      rows.push(rowData)
+    });
+    setTableData(rows)
+    return rows
+  }
+  const importExcel = (e) => {
+    const file = e.target.files[0]
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const bstr = event.target.result
+      const workBook = XLSX.read(bstr, { type: "binary"})
+      const workSheetName = workBook.SheetNames[0]
+      const workSheet = workBook.Sheets[workSheetName]
+      const fileData = XLSX.utils.sheet_to_json(workSheet, { header : 1})
+      const headers = fileData[0]
+      const heads = headers.map(head => ({ title: head, field: head}))
+      fileData.splice(0,1)
+      convertToJson(headers, fileData)
+    }
+    reader.readAsBinaryString(file)
+  }
+  const [tableData, setTableData] = useState([])
+
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
         <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+          <input type='file' onChange={importExcel} />
         </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
     </main>
   )
 }
