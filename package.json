@@ -11,9 +11,12 @@
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@json2csv/plainjs": "^7.0.3",
     "@mui/material": "^5.14.9",
+    "csv-writer": "^1.6.0",
     "eslint": "8.49.0",
     "eslint-config-next": "13.4.19",
+    "json2csv": "^6.0.0-alpha.2",
     "next": "13.4.19",
     "react": "18.2.0",
     "react-dom": "18.2.0",
