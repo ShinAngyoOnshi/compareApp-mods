@@ -9,7 +9,7 @@ export default function Home() {
   const [tableDataOld, setTableDataOld] = useState([])
   const [tableDataNew, setTableDataNew] = useState([])
 
-  const convertToJson = async (headers, data, inputId) => {
+  const convertToJson = async (headers, data) => {
     const rows = []
     data.forEach(async row => {
       let rowData = {}
@@ -19,11 +19,6 @@ export default function Home() {
       // console.log('rowData: ', rowData)
       rows.push(rowData)
     });
-    // if (inputId === 'old-uploader') {
-    //   setTableDataOld(rows)
-    // } else {
-    //   setTableDataNew(rows)
-    // }
     return rows
   }
 
@@ -42,7 +37,7 @@ export default function Home() {
       const headers = fileData[0]
       const heads = headers.map(head => ({ title: head, field: head}))
       fileData.splice(0,1)
-      convertToJson(headers, fileData, inputId)
+      convertToJson(headers, fileData)
     }
     reader.readAsBinaryString(file)
   }
@@ -61,12 +56,11 @@ export default function Home() {
     console.log('In processing')
     const removedRows = findRemovedRows(tableDataOld, tableDataNew);
     const addedRows = findAddedRows(tableDataOld, tableDataNew);
-    console.log(removedRows)
-    console.log(addedRows)
+
     const ws = XLSX.utils.json_to_sheet(removedRows);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-        XLSX.writeFile(wb, 'removedRows.xlsx');
+    const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+      XLSX.writeFile(wb, 'removedRows.xlsx');
   }
 
   function extractData(file, inputId) {
