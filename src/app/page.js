@@ -63,6 +63,10 @@ export default function Home() {
     const addedRows = findAddedRows(tableDataOld, tableDataNew);
     console.log(removedRows)
     console.log(addedRows)
+    const ws = XLSX.utils.json_to_sheet(removedRows);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        XLSX.writeFile(wb, 'removedRows.xlsx');
   }
 
   function extractData(file, inputId) {
