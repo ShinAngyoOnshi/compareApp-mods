@@ -112,6 +112,9 @@ export default function Home() {
       const temp = XLSX.utils.sheet_to_json(file.Sheets[file.SheetNames[i]]);
       temp.forEach((res) => {
         // Concatenate Field3 and Field4
+        res.Field3 = res.Field3 || '';
+        res.Field4 = res.Field4 || '';
+        
         res.concatenatedFields = res.Field3 + res.Field4;
         data.push(res);
     });
