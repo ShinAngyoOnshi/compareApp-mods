@@ -48,13 +48,13 @@ export default function Home() {
 
   function findRemovedRows(tableDataOld, tableDataNew) {
     return tableDataOld.filter((oldRow) =>
-      !tableDataNew.some((newRow) => newRow.Field5_links === oldRow.Field5_links)
+      !tableDataNew.some((newRow) => newRow.concatenatedFields  === oldRow.concatenatedFields )
     );
   }
 
   function findAddedRows(tableDataOld, tableDataNew) {
     return tableDataNew.filter((newRow) =>
-      !tableDataOld.some((oldRow) => oldRow.Field5_links === newRow.Field5_links)
+      !tableDataOld.some((oldRow) => oldRow.concatenatedFields  === newRow.concatenatedFields )
     );
   }
 
@@ -68,14 +68,14 @@ export default function Home() {
         const wsRemoved = XLSX.utils.json_to_sheet(removedRows);
         const wbRemoved = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wbRemoved, wsRemoved, 'removedRows');
-        XLSX.writeFile(wbRemoved, 'removedRowsDecks.xlsx');
+        XLSX.writeFile(wbRemoved, 'removedRowsDeejay.xlsx');
       }
 
       if (addedRowCheck) {
         const wsAdded = XLSX.utils.json_to_sheet(addedRows);
         const wbAdded = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wbAdded, wsAdded, 'addedRows');
-        XLSX.writeFile(wbAdded, 'addedRowsDecks.xlsx');
+        XLSX.writeFile(wbAdded, 'addedRowsDeejay.xlsx');
       }
     }
 
@@ -87,7 +87,7 @@ export default function Home() {
         const urlRemoved = window.URL.createObjectURL(blobRemoved);
         const aRemoved = document.createElement('a');
         aRemoved.href = urlRemoved;
-        aRemoved.download = 'removedRowsDecks.csv';
+        aRemoved.download = 'removedRowsDeejay.csv';
         aRemoved.click();
         window.URL.revokeObjectURL(urlRemoved);
       }
@@ -98,7 +98,7 @@ export default function Home() {
         const urlAdded = window.URL.createObjectURL(blobAdded);
         const aAdded = document.createElement('a');
         aAdded.href = urlAdded;
-        aAdded.download = 'addedRowsDecks.csv';
+        aAdded.download = 'addedRowsDeejay.csv';
         aAdded.click();
         window.URL.revokeObjectURL(urlAdded);
       }
@@ -112,11 +112,10 @@ export default function Home() {
     for (let i = 0; i < sheets.length; i++) {
       const temp = XLSX.utils.sheet_to_json(file.Sheets[file.SheetNames[i]]);
       temp.forEach((res) => {
-        const code = extractCodeFromURL(res.Field5_links);
-        // Add the extracted code as a new property
-        res.field_6 = code;
+        // Concatenate Field3 and Field4
+        res.concatenatedFields = res.Field3 + res.Field4;
         data.push(res);
-      });
+    });
     }
 
     if (inputId === 'old-uploader') {
@@ -127,11 +126,6 @@ export default function Home() {
     return data;
   }
 
-  function extractCodeFromURL(url) {
-    const regex = /\/(\d+)-/;
-    const match = url.match(regex);
-    return match ? match[1] : null;
-  }
 
   return (
     <main className={styles.main}>

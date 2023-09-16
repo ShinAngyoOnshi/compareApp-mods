@@ -14,10 +14,10 @@ export default function Home() {
             <Link href="/decks">Decks</Link>
           </li>
           <li>
-            <Link href="/decks">DeeJay</Link>
+            <Link href="/deejay">DeeJay</Link>
           </li>
           <li>
-            <Link href="/decks">PopRock</Link>
+            <Link href="/mmv">MMV</Link>
           </li>
         </ul>
       </div>

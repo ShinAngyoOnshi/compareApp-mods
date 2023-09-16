@@ -15,46 +15,31 @@ export default function Home() {
   const [addedRowCheck, setAddedRowCheck] = useState(true);
   const [removedRowCheck, setRemovedRowCheck] = useState(true);
 
-  const convertToJson = async (headers, data) => {
-    const rows = [];
-    data.forEach(async (row) => {
-      let rowData = {};
-      row.forEach(async (element, index) => {
-        rowData[headers[index]] = element;
-      });
-      rows.push(rowData);
-    });
-    return rows;
-  };
 
   const importExcel = (e) => {
     const inputId = e.target.id;
     const file = e.target.files[0];
-
+  
     const reader = new FileReader();
     reader.onload = (event) => {
-      const bstr = event.target.result;
-      const workBook = XLSX.read(bstr, { type: 'binary' });
-      extractData(workBook, inputId);
-      const workSheetName = workBook.SheetNames[0];
-      const workSheet = workBook.Sheets[workSheetName];
-      const fileData = XLSX.utils.sheet_to_json(workSheet, { header: 1 });
-      const headers = fileData[0];
-      fileData.splice(0, 1);
-      convertToJson(headers, fileData);
+      const content = event.target.result;
+      const rows = content.split('\n').map((line) => line.split('\t'));
+  
+      extractData(rows, inputId);
     };
-    reader.readAsBinaryString(file);
+    reader.readAsText(file);
   };
+  
 
   function findRemovedRows(tableDataOld, tableDataNew) {
     return tableDataOld.filter((oldRow) =>
-      !tableDataNew.some((newRow) => newRow.Field5_links === oldRow.Field5_links)
+      !tableDataNew.some((newRow) =>  newRow[6] === oldRow[6])
     );
   }
 
   function findAddedRows(tableDataOld, tableDataNew) {
     return tableDataNew.filter((newRow) =>
-      !tableDataOld.some((oldRow) => oldRow.Field5_links === newRow.Field5_links)
+      !tableDataOld.some((oldRow) => oldRow[6] === newRow[6])
     );
   }
 
@@ -62,20 +47,20 @@ export default function Home() {
     console.log('In processing');
     const removedRows = findRemovedRows(tableDataOld, tableDataNew);
     const addedRows = findAddedRows(tableDataOld, tableDataNew);
-
+    
     if (xlsxCheck) {
       if (removedRowCheck) {
         const wsRemoved = XLSX.utils.json_to_sheet(removedRows);
         const wbRemoved = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wbRemoved, wsRemoved, 'removedRows');
-        XLSX.writeFile(wbRemoved, 'removedRowsDecks.xlsx');
+        XLSX.writeFile(wbRemoved, 'removedRowsMMV.xlsx');
       }
 
       if (addedRowCheck) {
         const wsAdded = XLSX.utils.json_to_sheet(addedRows);
         const wbAdded = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wbAdded, wsAdded, 'addedRows');
-        XLSX.writeFile(wbAdded, 'addedRowsDecks.xlsx');
+        XLSX.writeFile(wbAdded, 'addedRowsMMV.xlsx');
       }
     }
 
@@ -87,7 +72,7 @@ export default function Home() {
         const urlRemoved = window.URL.createObjectURL(blobRemoved);
         const aRemoved = document.createElement('a');
         aRemoved.href = urlRemoved;
-        aRemoved.download = 'removedRowsDecks.csv';
+        aRemoved.download = 'removedRowsMMV.csv';
         aRemoved.click();
         window.URL.revokeObjectURL(urlRemoved);
       }
@@ -98,40 +83,21 @@ export default function Home() {
         const urlAdded = window.URL.createObjectURL(blobAdded);
         const aAdded = document.createElement('a');
         aAdded.href = urlAdded;
-        aAdded.download = 'addedRowsDecks.csv';
+        aAdded.download = 'addedRowsMMV.csv';
         aAdded.click();
         window.URL.revokeObjectURL(urlAdded);
       }
     }
   };
 
-  function extractData(file, inputId) {
-    const data = [];
-    const sheets = file.SheetNames;
-
-    for (let i = 0; i < sheets.length; i++) {
-      const temp = XLSX.utils.sheet_to_json(file.Sheets[file.SheetNames[i]]);
-      temp.forEach((res) => {
-        const code = extractCodeFromURL(res.Field5_links);
-        // Add the extracted code as a new property
-        res.field_6 = code;
-        data.push(res);
-      });
-    }
-
+  function extractData(rows, inputId) {
     if (inputId === 'old-uploader') {
-      setTableDataOld(data);
+      setTableDataOld(rows);
     } else {
-      setTableDataNew(data);
+      setTableDataNew(rows);
     }
-    return data;
   }
-
-  function extractCodeFromURL(url) {
-    const regex = /\/(\d+)-/;
-    const match = url.match(regex);
-    return match ? match[1] : null;
-  }
+  
 
   return (
     <main className={styles.main}>
