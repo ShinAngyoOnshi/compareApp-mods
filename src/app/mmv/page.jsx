@@ -13,6 +13,12 @@ import SendIcon from '@mui/icons-material/Send';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const DemoPaper = styled(Paper)(({ theme }) => ({
   width: 180,
@@ -54,12 +60,15 @@ export default function Home() {
   const [xlsxCheck, setXlsxCheck] = useState(false);
   const [addedRowCheck, setAddedRowCheck] = useState(true);
   const [removedRowCheck, setRemovedRowCheck] = useState(true);
-
+  const [hasError, setErrorMessage] = useState(null);
+  const [open, setOpen] = useState(false);
 
   const importExcel = (e) => {
+    setErrorMessage(null)
+    setOpen(false)
     const inputId = e.target.id;
     const file = e.target.files[0];
-    const fileName = e.target.files[0].name;
+    const fileName = e.target?.files[0]?.name;
     if (inputId === 'old-uploader') {
       setOldFileName(fileName);
     } else {
@@ -67,10 +76,15 @@ export default function Home() {
     }
     const reader = new FileReader();
     reader.onload = (event) => {
-      const content = event.target.result;
-      const rows = content.split('\n').map((line) => line.split('\t'));
-  
-      extractData(rows, inputId);
+      try {
+        const content = event.target.result;
+        const rows = content.split('\n').map((line) => line.split('\t'));
+        extractData(rows, inputId);
+      } catch (error) {
+        setOpen(true)
+        setErrorMessage(`Si è verificato un errore nell'importazione del file. Assicurati che il formato sia corretto.`);
+        console.error(`Si è verificato un errore nell'importazione del file:`, error);
+      }
     };
     reader.readAsText(file);
   };
@@ -143,6 +157,12 @@ export default function Home() {
     }
   }
   
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+  };
 
   return (
     <>
@@ -256,6 +276,11 @@ export default function Home() {
           </Button>
         </Stack>
       </Box>
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+            {hasError}
+        </Alert>
+      </Snackbar>
     </>
   );
 }
