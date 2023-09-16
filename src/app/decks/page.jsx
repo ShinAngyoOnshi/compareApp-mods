@@ -135,7 +135,6 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-     <Link href="/">Home</Link>
       <div>
         <p>Old file</p>
         <input type="file" onChange={importExcel} id="old-uploader" />

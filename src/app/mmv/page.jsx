@@ -47,7 +47,7 @@ export default function Home() {
     console.log('In processing');
     const removedRows = findRemovedRows(tableDataOld, tableDataNew);
     const addedRows = findAddedRows(tableDataOld, tableDataNew);
-    
+
     if (xlsxCheck) {
       if (removedRowCheck) {
         const wsRemoved = XLSX.utils.json_to_sheet(removedRows);
@@ -101,7 +101,6 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-     <Link href="/">Home</Link>
       <div>
         <p>Old file</p>
         <input type="file" onChange={importExcel} id="old-uploader" />
