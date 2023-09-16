@@ -1,15 +1,53 @@
 'use client'
 import React, { useState } from 'react';
-import Link from 'next/link'
 
 import * as XLSX from 'xlsx';
 import { Parser } from '@json2csv/plainjs';
 
-import styles from '../page.module.css';
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import { styled } from '@mui/material/styles';
+import Grid from '@mui/system/Unstable_Grid';
+import SendIcon from '@mui/icons-material/Send';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+
+const DemoPaper = styled(Paper)(({ theme }) => ({
+  width: 180,
+  height: 180,
+  padding: theme.spacing(2),
+  ...theme.typography.body2,
+  textAlign: 'center',
+}));
+
+const Item = styled('div')(({ theme }) => ({
+  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  border: '1px solid',
+  borderColor: theme.palette.mode === 'dark' ? '#444d58' : '#ced7e0',
+  padding: theme.spacing(1),
+  borderRadius: '4px',
+  display:'flex',
+}));
+
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
+});
 
 export default function Home() {
   const [tableDataOld, setTableDataOld] = useState([]);
   const [tableDataNew, setTableDataNew] = useState([]);
+  const [oldFileName, setOldFileName] = useState('');
+  const [newFileName, setNewFileName] = useState('');
   const [csvCheck, setCsvCheck] = useState(true);
   const [xlsxCheck, setXlsxCheck] = useState(false);
   const [addedRowCheck, setAddedRowCheck] = useState(true);
@@ -30,7 +68,12 @@ export default function Home() {
   const importExcel = (e) => {
     const inputId = e.target.id;
     const file = e.target.files[0];
-
+    const fileName = e.target.files[0].name;
+    if (inputId === 'old-uploader') {
+      setOldFileName(fileName);
+    } else {
+      setNewFileName(fileName);
+    }
     const reader = new FileReader();
     reader.onload = (event) => {
       const bstr = event.target.result;
@@ -134,65 +177,117 @@ export default function Home() {
   }
 
   return (
-    <main className={styles.main}>
-      <div>
-        <p>Old file</p>
-        <input type="file" onChange={importExcel} id="old-uploader" />
-        <p>New file</p>
-        <input type="file" onChange={importExcel} id="new-uploader" />
-        <div>
-          <input
-            type="checkbox"
-            id="added"
-            name="added"
-            checked={addedRowCheck}
-            onChange={() => {
-              setAddedRowCheck(!addedRowCheck);
-            }}
-          />
-          <label htmlFor="added">Added Rows</label>
-        </div>
-        <div>
-          <input
-            type="checkbox"
-            id="removed"
-            name="removed"
-            checked={removedRowCheck}
-            onChange={() => {
-              setRemovedRowCheck(!removedRowCheck);
-            }}
-          />
-          <label htmlFor="removed">Removed Rows</label>
-        </div>
-        <div>
-          <input
-            type="checkbox"
-            id="xlsx"
-            name="xlsx"
-            checked={xlsxCheck}
-            onChange={() => {
-              setXlsxCheck(!xlsxCheck);
-            }}
-          />
-          <label htmlFor="xlsx">XLSX</label>
-        </div>
-        <div>
-          <input
-            type="checkbox"
-            id="csv"
-            name="csv"
-            checked={csvCheck}
-            onChange={() => {
-              setCsvCheck(!csvCheck);
-            }}
-          />
-          <label htmlFor="csv">CSV</label>
-        </div>
-        <div>
-          <p>Run Process</p>
-          <button onClick={runProcess}>Run</button>
-        </div>
-      </div>
-    </main>
+    <>
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          '& > :not(style)': {
+            m: 1,
+          },
+        }}
+      >
+        <DemoPaper variant="elevation">
+          Decks
+        </DemoPaper>
+      </Box>
+      <Box>
+        <Box mb={3} >
+        <Stack direction="row" spacing={2}>
+          <Box>
+            <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+              Upload Old file
+              <VisuallyHiddenInput type="file" onChange={importExcel} id="old-uploader"  />
+            </Button>
+            <Typography variant="caption" display="block" gutterBottom>
+              {oldFileName}
+            </Typography>
+          </Box>
+          <Box>
+            <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+              Upload New file
+              <VisuallyHiddenInput type="file"  onChange={importExcel} id="new-uploader"  />
+            </Button>
+            <Typography variant="caption" display="block" gutterBottom>
+              {newFileName}
+            </Typography>
+          </Box>
+        </Stack>
+        </Box>
+        <Box>
+        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+          <Grid xs={6}>
+            <Item>
+            <input
+                    type="checkbox"
+                    id="added"
+                    name="added"
+                    checked={addedRowCheck}
+                    onChange={() => {
+                      setAddedRowCheck(!addedRowCheck);
+                    }}
+                    style={{ marginRight: 20 }}
+                  />
+                  <label htmlFor="added">Added Rows</label>
+            </Item>
+          </Grid>
+          <Grid xs={6}>
+            <Item>
+            <input
+                    type="checkbox"
+                    id="removed"
+                    name="removed"
+                    checked={removedRowCheck}
+                    onChange={() => {
+                      setRemovedRowCheck(!removedRowCheck);
+                    }}
+                    style={{ marginRight: 20 }}
+                  />
+                  <label htmlFor="removed">Removed Rows</label>
+            </Item>
+          </Grid>
+        </Grid>
+        </Box>
+        <Box>
+        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+          <Grid xs={6}>  
+            <Item>
+              <input
+              type="checkbox"
+              id="xlsx"
+              name="xlsx"
+              checked={xlsxCheck}
+              onChange={() => {
+                setXlsxCheck(!xlsxCheck);
+              }}
+              style={{ marginRight: 20 }}
+            />
+              <label htmlFor="xlsx">XLSX</label>
+            </Item>
+          </Grid>
+          <Grid xs={6}>  
+            <Item>
+              <input
+                type="checkbox"
+                id="csv"
+                name="csv"
+                checked={csvCheck}
+                onChange={() => {
+                  setCsvCheck(!csvCheck);
+                }}
+                style={{ marginRight: 20 }}
+              />
+              <label htmlFor="csv">CSV</label>
+            </Item>
+          </Grid>
+        </Grid>
+        </Box>
+        <Stack mt={2} direction="row" spacing={2}>
+          <Button onClick={runProcess} variant="contained" endIcon={<SendIcon />}>
+            Run Process
+          </Button>
+        </Stack>
+      </Box>
+    </>
   );
 }
