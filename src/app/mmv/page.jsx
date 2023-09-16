@@ -59,6 +59,7 @@ export default function Home() {
   const importExcel = (e) => {
     const inputId = e.target.id;
     const file = e.target.files[0];
+    const fileName = e.target.files[0].name;
     if (inputId === 'old-uploader') {
       setOldFileName(fileName);
     } else {
